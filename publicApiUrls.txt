@@ -1,0 +1,10 @@
+https://www.tasteatlas.com/api/v3/regions/191/data?filters=0&includeSections=true&pageSize=12&regionWhatToEatSortEnum=0&userViewpointRegionId=4123,
+https://api.skypicker.com/locations/?limit=9999&locale=en-GB&location_types=city&type=dump,
+https://api.skypicker.com/aggregation_flights?adults=1&affilid=rubiconespzoohikersbaywidgets&apikey=SnsFAby3M0bAlXps9I5BeBvaZlPMUSgY&asc=1&children=0&dateFrom=10%2F12%2F2020&dateTo=10%2F01%2F2021&daysInDestinationFrom=&daysInDestinationTo=&featureName=map&flyFrom=38.36-38.33-250km&infants=0&locale=en&one_per_date=0&oneforcity=1&partner=skypicker&returnFrom=&returnTo=&sort=price&to=anywhere&typeFlight=oneway&v=3&wait_for_refresh=0,
+http://hikersbay.com/api/airport/arrivals/IST?lang=en,
+https://www.turkishairlines.com/com.thy.web.online.ibs/ibs/booking/locations/TK/en?_=1607619920029,
+https://onthegrid.city/assets/data/quickSearch.json?v=0.1,
+https://tr.flightaware.com/ajax/ignoreall/vicinity_airports.rvt,
+https://www.flightstats.com/v2/api-next/random-flight?rqid=,
+https://www.goindigo.in/etc/indigo/airports.markets.en.json,
+https://en.wikipedia.org/w/api.php?action=query&redirects=1&generator=geosearch&prop=langlinks|extracts|coordinates|pageimages|info|images&ggslimit=499&ggsradius=3000&ggscoord=39.91987|32.85427&exintro=1&explaintext=1&exlimit=20&coprop=type|dim|globe&colimit=20&piprop=thumbnail&pithumbsize=200&pilimit=20&codistancefrompoint=39.91987|32.85427&format=json&origin=*&lllimit=500
