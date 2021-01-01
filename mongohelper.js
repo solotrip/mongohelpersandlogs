@@ -1,3 +1,5 @@
+import { toJson } from "xml2json";
+
 //Projection to safety score.
 db.areas.aggregate([
   {
@@ -1448,3 +1450,206 @@ db.areasv3.aggregate([
     },
   },
 ]);
+
+//Reorganizing scores.
+var scoreHolder;
+var wkdHolder;
+db.areasv3.find().forEach(function (area) {
+  scoreHolder = area.solotrip_popularity_score;
+  wkdHolder = area.properties.wkd_id;
+
+  db.areasv3.updateMany(
+    { "properties.wkd_id": wkdHolder },
+    {
+      $push: {
+        scores: {
+          name: "Popularity Score",
+          key: "popularity_score",
+          value: scoreHolder || 5,
+          type: "score",
+          unit: "/10",
+        },
+      },
+    }
+  );
+});
+
+//Adding name field.
+
+db.areasv3.find().forEach(function (area) {
+  nameHolder =
+    area.properties.name ||
+    area.properties.asciiname ||
+    area.properties.short_slug;
+
+  wkdHolder = area.properties.wkd_id;
+
+  db.areasv3.updateMany(
+    { "properties.wkd_id": wkdHolder },
+    {
+      $set: {
+        name: nameHolder,
+      },
+    }
+  );
+});
+
+//Gathering electricity. If it is exists in the properties get it, else get from parent.
+
+db.areasv3.find().forEach(function (area) {
+  plugs =
+    area.properties.power_plugs ||
+    (area.parentCountry[0] && area.parentCountry[0].properties.power_plugs);
+  voltage =
+    area.properties.power_voltage ||
+    (area.parentCountry[0] && area.parentCountry[0].properties.power_voltage);
+  frequency =
+    area.properties.power_frequency ||
+    (area.parentCountry[0] && area.parentCountry[0].properties.power_frequency);
+  wkdHolder = area.properties.wkd_id;
+
+  db.areasv3.updateMany(
+    { "properties.wkd_id": wkdHolder },
+    {
+      $set: {
+        electricity: {
+          plugs: plugs,
+          voltage: voltage,
+          frequency: frequency,
+        },
+      },
+    }
+  );
+});
+
+//Parsing tags from nomadlist.
+db.areasv3.find().forEach(function (area) {
+  var tagArray = [];
+  tagsHolder = area.properties.tags || "";
+
+  var tags = tagsHolder.split(",") || [];
+
+  tags.forEach(function (tag) {
+    if (tag != "") {
+      tagArray.push(tag);
+    }
+  });
+  wkdHolder = area.properties.wkd_id;
+  db.areasv3.updateMany(
+    { "properties.wkd_id": wkdHolder },
+    {
+      $set: {
+        tags: tagArray,
+      },
+    }
+  );
+});
+
+//Near cities new schema.
+db.areasv3.find().forEach(function (area) {
+  var nearArray = [];
+  nearcitiesHolder = area.nearcities || [];
+
+  nearcitiesHolder.forEach(function (city) {
+    if (city.distance != 0) {
+      //Find near city by wkd_id and get the name.
+      if (city.wkd_id) {
+        x = db.areasv3.findOne({ "properties.wkd_id": city.wkd_id });
+        city.name = x.properties.name;
+      }
+
+      city.unit = "meters";
+      nearArray.push(city);
+    }
+  });
+  wkdHolder = area.properties.wkd_id;
+
+  db.areasv3.updateMany(
+    { "properties.wkd_id": wkdHolder },
+    {
+      $set: {
+        near_cities: nearArray,
+      },
+    }
+  );
+});
+
+// Near airports new schema.
+db.areasv3.find().forEach(function (area) {
+  var nearArray = [];
+  nearairportsHolder = area.nearairports || [];
+
+  nearairportsHolder.forEach(function (airport) {
+    if (airport.distance != 0) {
+      //Find near city by wkd_id and get the name.
+      if (airport.location) {
+        x = db.airports.findOne({ location: airport.location });
+        airport.iata = x.iata;
+        airport.names = x.names;
+      }
+
+      airport.unit = "meters";
+      nearArray.push(airport);
+    }
+  });
+  wkdHolder = area.properties.wkd_id;
+
+  db.areasv3.updateMany(
+    { "properties.wkd_id": wkdHolder },
+    {
+      $set: {
+        near_airports: nearArray,
+      },
+    }
+  );
+});
+
+//Adding percentages.
+var percentageHolder;
+var wkdHolder;
+db.areasv3.find().forEach(function (area) {
+  percentageHolder =
+    (area.forestPercentage[0] &&
+      parseInt(area.forestPercentage[0].Value, 10)) ||
+    null;
+  wkdHolder = area.properties.wkd_id;
+
+  db.areasv3.updateMany(
+    { "properties.wkd_id": wkdHolder },
+    {
+      $push: {
+        percentages: {
+          name: "Forest Percentage",
+          key: "country_forest_percentage",
+          value: percentageHolder,
+          type: "percentage",
+          unit: "%",
+        },
+      },
+    }
+  );
+});
+
+//Adding distances.
+var distanceHolder;
+var wkdHolder;
+db.areasv3.find().forEach(function (area) {
+  distanceHolder = area.solotrip_distance_to_sea || null;
+
+  wkdHolder = area.properties.wkd_id;
+
+  db.areasv3.updateMany(
+    { "properties.wkd_id": wkdHolder },
+    {
+      $push: {
+        distances: {
+          name: "Nearest Coast",
+          key: "distance_to_nearest_coast",
+          value: distanceHolder,
+          type: "distance",
+          unit: "meters",
+        },
+      },
+    }
+  );
+});
