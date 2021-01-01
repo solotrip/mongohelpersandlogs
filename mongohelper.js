@@ -1653,3 +1653,250 @@ db.areasv3.find().forEach(function (area) {
     }
   );
 });
+
+//Areasv2 and  areas are removed. Areasv3 renamed to areas.
+
+//SKYPICKING BEGIIIIINNNSSSS !!!!
+
+//Merging skypicker names with name_properties.
+db.areas.find().forEach(function (area) {
+  slugHolder = area.properties.long_slug || area.properties.nl_slug;
+
+  wkdHolder = area.properties.wkd_id;
+
+  nameNomad = area.name;
+
+  countrySlug =
+    (area.parentCountry[0] && area.parentCountry[0].properties.long_slug) || "";
+
+  concatSlug =
+    ((nameNomad && nameNomad.toLowerCase().replace(/\s/g, "-")) || "") +
+    "-" +
+    countrySlug;
+
+  if (slugHolder) {
+    x = db.skypickerApi.findOne({ slug: slugHolder });
+    if (x != null) {
+      nameHolder = x.name;
+      popularityHolder = x.dst_popularity_score;
+    }
+  }
+
+  db.areas.updateMany(
+    { "properties.wkd_id": wkdHolder },
+    {
+      $set: {
+        name_properties: {
+          name: nameHolder || nameNomad || null,
+          name_skypicker: (nameHolder && nameHolder) || null,
+          name_nomad: nameNomad || null,
+          slug: slugHolder || concatSlug,
+        },
+      },
+    }
+  );
+
+  nameHolder = null;
+  slugHolder = null;
+});
+
+// Skypicker normalizing popularity score and adding it to scores array as a different popularity score.
+db.areas.find().forEach(function (area) {
+  slugHolder = area.properties.long_slug || area.properties.nl_slug;
+
+  wkdHolder = area.properties.wkd_id;
+
+  if (slugHolder) {
+    x = db.skypickerApi.findOne({ slug: slugHolder });
+    if (x != null) {
+      popularityHolder = x.dst_popularity_score;
+      maxPopularity = 6093902;
+      minPopularity = 0;
+
+      popularityScore = Math.ceil(
+        (10 * (popularityHolder - minPopularity)) /
+          (maxPopularity - minPopularity)
+      );
+    }
+
+    db.areas.updateMany(
+      { "properties.wkd_id": wkdHolder },
+      {
+        $push: {
+          scores: {
+            name: "Popularity Score",
+            key: "skypicker_popularity_score",
+            value: popularityScore || null,
+            type: "score",
+            unit: "/10",
+          },
+        },
+      }
+    );
+    popularityScore = null;
+  }
+});
+
+//Adding skypicker airports, stations, hotels, and bus stations to count array.
+
+db.areas.find().forEach(function (area) {
+  slugHolder = area.properties.long_slug || area.properties.nl_slug;
+  wkdHolder = area.properties.wkd_id;
+
+  if (slugHolder) {
+    x = db.skypickerApi.findOne({ slug: slugHolder });
+    if (x != null) {
+      airportsCount = x.bus_stations;
+
+      db.areas.updateMany(
+        { "properties.wkd_id": wkdHolder },
+        {
+          $push: {
+            counts: {
+              name: "Number of Bus Stations",
+              key: "skypicker_bus_stations_count",
+              value: airportsCount,
+              type: "count",
+              unit: "",
+            },
+          },
+        }
+      );
+
+      airportsCount = null;
+      slugHolder = null;
+      wkdHolder = null;
+    }
+  }
+});
+
+//Merging skypicker tags with Solotrip tags.
+
+db.areas.find().forEach(function (area) {
+  slugHolder = area.properties.long_slug || area.properties.nl_slug;
+  wkdHolder = area.properties.wkd_id;
+
+  if (slugHolder) {
+    x = db.skypickerApi.findOne({ slug: slugHolder });
+    if (x != null) {
+      tagArray = [];
+      tags = x.tags;
+
+      tags.forEach(function (tag) {
+        tagArray.push(tag.tag);
+        db.areas.updateMany(
+          { "properties.wkd_id": wkdHolder },
+          {
+            $push: {
+              tags: tag.tag,
+            },
+          }
+        );
+      });
+
+      tagArray = [];
+      tags = [];
+      slugHolder = null;
+      wkdHolder = null;
+    }
+  }
+});
+
+//Skypickers Alternative departure points merged into solotrip. Note that we are not appending into near_airports. We could compare and use both.
+db.areas.find().forEach(function (area) {
+  slugHolder = area.properties.long_slug || area.properties.nl_slug;
+  wkdHolder = area.properties.wkd_id;
+
+  if (slugHolder) {
+    x = db.skypickerApi.findOne({ slug: slugHolder });
+    if (x != null) {
+      departureArray = [];
+      departures = x.alternative_departure_points;
+
+      departures.forEach(function (departure) {
+        departureArray.push({
+          iata: departure.id,
+          distance: departure.distance,
+          "distance-unit": "kilometers",
+          duration: departure.duration,
+          "duration-unit": "seconds",
+        });
+      });
+
+      db.areas.updateMany(
+        { "properties.wkd_id": wkdHolder },
+        {
+          $set: {
+            alternative_departure_points: departureArray,
+          },
+        }
+      );
+
+      departureArray = [];
+      departures = [];
+      slugHolder = null;
+      wkdHolder = null;
+    }
+  }
+});
+
+//unsetting the old fields. Remove.
+db.areas.update(
+  {},
+  { $unset: { nearairports: 1 } },
+  { multi: true }
+);
+
+//Adding UNESCO World Heritages into counts.
+
+db.areas.find().forEach(function (area) {
+  wkdHolder = area.properties.wkd_id;
+
+  worldHeritages =
+    (area.heritages[0] && area.heritages[0].total_heritages) || 0;
+
+  db.areas.updateMany(
+    { "properties.wkd_id": wkdHolder },
+    {
+      $push: {
+        counts: {
+          name: "Number of Total Heritages In Country",
+          key: "unesco_world_heritages_total_count_country",
+          value: worldHeritages,
+          type: "count",
+          unit: "",
+        },
+      },
+    }
+  );
+
+  worldHeritages = null;
+});
+
+//Air transport Arrivals & Popular cities rank.
+db.areas.find().forEach(function (area) {
+  wkdHolder = area.properties.wkd_id;
+
+  worldHeritages =
+    area.popularcities[0] &&
+    parseInt(area.popularcities[0]["Rank(Mastercard)"]);
+
+  if (area.popularcities[0]) {
+    db.areas.updateMany(
+      { "properties.wkd_id": wkdHolder },
+      {
+        $push: {
+          counts: {
+            name: "Popular Cities Rank",
+            key: "popular_cities_rank",
+            value: worldHeritages,
+            type: "count",
+            unit: "/100",
+          },
+        },
+      }
+    );
+  }
+
+  worldHeritages = null;
+});
