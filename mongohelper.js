@@ -1841,11 +1841,7 @@ db.areas.find().forEach(function (area) {
 });
 
 //unsetting the old fields. Remove.
-db.areas.update(
-  {},
-  { $unset: { nearairports: 1 } },
-  { multi: true }
-);
+db.areas.update({}, { $unset: { nearairports: 1 } }, { multi: true });
 
 //Adding UNESCO World Heritages into counts.
 
@@ -1873,7 +1869,7 @@ db.areas.find().forEach(function (area) {
   worldHeritages = null;
 });
 
-//Air transport Arrivals & Popular cities rank.
+//Air transport Arrivals
 db.areas.find().forEach(function (area) {
   wkdHolder = area.properties.wkd_id;
 
@@ -1899,4 +1895,31 @@ db.areas.find().forEach(function (area) {
   }
 
   worldHeritages = null;
+});
+
+//Citynames..
+db.areas.aggregate([
+  {
+    $project: {
+      wkd_id: 1,
+      name_properties: 1,
+      "properties.wkd_id": 1,
+    },
+  },
+  { $out: "citynames" },
+]);
+
+//creating id for citynames.
+db.citynames.find().forEach(function (city) {
+  wkdHolder = city.properties.wkd_id;
+  slugHolder = city.name_properties.slug;
+
+  db.citynames.updateMany(
+    { "properties.wkd_id": wkdHolder },
+    {
+      $set: {
+        name: slugHolder + "_" + wkdHolder,
+      },
+    }
+  );
 });
