@@ -1,5 +1,3 @@
-import { toJson } from "xml2json";
-
 //Projection to safety score.
 db.areas.aggregate([
   {
@@ -22,7 +20,7 @@ db.areas.aggregate([
           "$properties.safety_level",
           {
             $round: [
-              { $multiply: [{ $toDouble: "$properties.safety_level" }, 2] },
+              {$multiply: [{$toDouble: "$properties.safety_level"}, 2]},
             ],
           },
           {
@@ -48,7 +46,7 @@ db.areas.aggregate([
       },
     },
   },
-  { $out: "projectedareas" },
+  {$out: "projectedareas"},
 ]);
 
 //projection to overall score.
@@ -63,7 +61,7 @@ db.projectedareas.aggregate([
       solotrip_overall_score: {
         $cond: [
           "$properties.overall_score",
-          { $round: [{ $multiply: ["$properties.overall_score", 2] }, 0] },
+          {$round: [{$multiply: ["$properties.overall_score", 2]}, 0]},
           {
             $cond: [
               "$parentCountry.properties.overall_score",
@@ -91,7 +89,7 @@ db.projectedareas.aggregate([
       },
     },
   },
-  { $out: "projectedareas2" },
+  {$out: "projectedareas2"},
 ]);
 
 //projection to foodie score.
@@ -130,7 +128,7 @@ db.projectedareas2.aggregate([
       },
     },
   },
-  { $out: "projectedareas3" },
+  {$out: "projectedareas3"},
 ]);
 
 //Adding foodscore to countries collection.
@@ -151,7 +149,7 @@ db.projectedareas3.aggregate([
       solotrip_budget_score: {
         $cond: [
           "$properties.cost_score",
-          { $round: [{ $multiply: ["$properties.cost_score", 2] }, 0] },
+          {$round: [{$multiply: ["$properties.cost_score", 2]}, 0]},
           {
             $cond: [
               "$parentCountry.properties.cost_score",
@@ -179,7 +177,7 @@ db.projectedareas3.aggregate([
       },
     },
   },
-  { $out: "projectedareas4" },
+  {$out: "projectedareas4"},
 ]);
 
 //Projection to walkscore.
@@ -197,7 +195,7 @@ db.projectedareas4.aggregate([
       solotrip_walkable_score: {
         $cond: [
           "$properties.walkScore",
-          { $round: [{ $divide: ["$properties.walkScore", 10] }, 0] },
+          {$round: [{$divide: ["$properties.walkScore", 10]}, 0]},
           {
             $cond: [
               "$parentCountry.properties.walkScore",
@@ -225,7 +223,7 @@ db.projectedareas4.aggregate([
       },
     },
   },
-  { $out: "projectedareas5" },
+  {$out: "projectedareas5"},
 ]);
 
 //Projection to Social Score.
@@ -244,7 +242,7 @@ db.projectedareas5.aggregate([
       solotrip_social_score: {
         $cond: [
           "$properties.life_score",
-          { $round: [{ $multiply: ["$properties.life_score", 2] }, 0] },
+          {$round: [{$multiply: ["$properties.life_score", 2]}, 0]},
           {
             $cond: [
               "$parentCountry.properties.life_score",
@@ -272,13 +270,13 @@ db.projectedareas5.aggregate([
       },
     },
   },
-  { $out: "projectedareas6" },
+  {$out: "projectedareas6"},
 ]);
 
 //Sorting
 db.projectedareas5
-  .aggregate([{ $sort: { solotrip_foodie_score: -1 } }, { $limit: 5 }])
-  .pretty();
+.aggregate([{$sort: {solotrip_foodie_score: -1}}, {$limit: 5}])
+.pretty();
 
 //Projection to health score.
 db.projectedareas6.aggregate([
@@ -297,7 +295,7 @@ db.projectedareas6.aggregate([
       solotrip_health_score: {
         $cond: [
           "$properties.healthcare_score",
-          { $round: [{ $multiply: ["$properties.healthcare_score", 2] }, 0] },
+          {$round: [{$multiply: ["$properties.healthcare_score", 2]}, 0]},
           {
             $cond: [
               "$parentCountry.properties.healthcare_score",
@@ -325,7 +323,7 @@ db.projectedareas6.aggregate([
       },
     },
   },
-  { $out: "projectedareas7" },
+  {$out: "projectedareas7"},
 ]);
 
 //Projection to freedom score.
@@ -346,7 +344,7 @@ db.projectedareas7.aggregate([
       solotrip_freedom_score: {
         $cond: [
           "$properties.democracy_score",
-          { $round: [{ $multiply: ["$properties.democracy_score", 2] }, 0] },
+          {$round: [{$multiply: ["$properties.democracy_score", 2]}, 0]},
           {
             $cond: [
               "$parentCountry.properties.democracy_score",
@@ -374,7 +372,7 @@ db.projectedareas7.aggregate([
       },
     },
   },
-  { $out: "projectedareas8" },
+  {$out: "projectedareas8"},
 ]);
 
 //Projection to freedom score.
@@ -396,7 +394,7 @@ db.projectedareas8.aggregate([
       solotrip_camper_score: {
         $cond: [
           "$properties.backpacker_score",
-          { $round: [{ $multiply: ["$properties.backpacker_score", 2] }, 0] },
+          {$round: [{$multiply: ["$properties.backpacker_score", 2]}, 0]},
           {
             $cond: [
               "$parentCountry.properties.backpacker_score",
@@ -424,7 +422,7 @@ db.projectedareas8.aggregate([
       },
     },
   },
-  { $out: "projectedareas9" },
+  {$out: "projectedareas9"},
 ]);
 
 //Projection to family score.
@@ -448,7 +446,7 @@ db.projectedareas9.aggregate([
       solotrip_family_score: {
         $cond: [
           "$properties.family_score",
-          { $round: [{ $multiply: ["$properties.family_score", 2] }, 0] },
+          {$round: [{$multiply: ["$properties.family_score", 2]}, 0]},
           {
             $cond: [
               "$parentCountry.properties.family_score",
@@ -476,7 +474,7 @@ db.projectedareas9.aggregate([
       },
     },
   },
-  { $out: "projectedareas10" },
+  {$out: "projectedareas10"},
 ]);
 
 //Adding sustainability score manually.
@@ -487,11 +485,11 @@ db.projectedareas10.aggregate([
   {
     $set: {
       solotrip_sustainability_short_score: {
-        $round: [{ $divide: ["$solotrip_sustainability_score", 10] }],
+        $round: [{$divide: ["$solotrip_sustainability_score", 10]}],
       },
     },
   },
-  { $out: "projectedareas11" },
+  {$out: "projectedareas11"},
 ]);
 
 //Getting culture score from culturalHeritages
@@ -524,11 +522,11 @@ db.projectedareas11.aggregate([
       solotrip_sustainability_short_score: 1,
       heritages: 1,
       solotrip_culture_score: {
-        $round: [{ $arrayElemAt: ["$heritages.culture_score", 0] }],
+        $round: [{$arrayElemAt: ["$heritages.culture_score", 0]}],
       },
     },
   },
-  { $out: "projectedareas12" },
+  {$out: "projectedareas12"},
 ]);
 
 //Getting the airtransport score from airtransportArrivals.
@@ -564,12 +562,12 @@ db.projectedareas12.aggregate([
       airtransportArrivals: 1,
       solotrip_airtransport_score: {
         $round: [
-          { $arrayElemAt: ["$airtransportArrivals.airtransport_score", 0] },
+          {$arrayElemAt: ["$airtransportArrivals.airtransport_score", 0]},
         ],
       },
     },
   },
-  { $out: "projectedareas13" },
+  {$out: "projectedareas13"},
 ]);
 
 //Getting the forest score from forestPercentage.
@@ -606,11 +604,11 @@ db.projectedareas13.aggregate([
       solotrip_culture_score: 1,
       solotrip_airtransport_score: 1,
       solotrip_forest_score: {
-        $round: [{ $arrayElemAt: ["$forestPercentage.forrest_score", 0] }],
+        $round: [{$arrayElemAt: ["$forestPercentage.forrest_score", 0]}],
       },
     },
   },
-  { $out: "projectedareas14" },
+  {$out: "projectedareas14"},
 ]);
 
 //Getting the luxury score from luxuryIndex.
@@ -649,11 +647,11 @@ db.projectedareas14.aggregate([
       solotrip_forest_score: 1,
       luxury: 1,
       solotrip_luxury_score: {
-        $round: [{ $arrayElemAt: ["$luxury.luxury_score", 0] }],
+        $round: [{$arrayElemAt: ["$luxury.luxury_score", 0]}],
       },
     },
   },
-  { $out: "projectedareas15" },
+  {$out: "projectedareas15"},
 ]);
 
 db.projectedareas15.aggregate([
@@ -716,7 +714,7 @@ db.projectedareas15.aggregate([
       },
     },
   },
-  { $out: "projectedareas16" },
+  {$out: "projectedareas16"},
 ]);
 
 /*
@@ -730,7 +728,7 @@ coordinates: [
 
 //db.projectedareas10.updateMany({"parentCountry.properties.wkd_id":"Q35"},{$set: {"solotrip_sustainability_score": 82.5}})
 db.projectedareas16.updateMany(
-  { "solotrip_location.coordinates": [null, null] },
+  {"solotrip_location.coordinates": [null, null]},
   [
     {
       $set: {
@@ -766,7 +764,7 @@ var x = db.coastline50.findOne({
   },
 });
 
-db.coastline50.find({ _id: x._id });
+db.coastline50.find({_id: x._id});
 
 //
 
@@ -776,12 +774,12 @@ var lats = [100.0];
 var y = db.coastline50.aggregate([
   {
     $geoNear: {
-      near: { type: "Point", coordinates: [30.499097, 39.765949] },
+      near: {type: "Point", coordinates: [30.499097, 39.765949]},
       key: "geometry",
       distanceField: "distance",
     },
   },
-  { $limit: 1 },
+  {$limit: 1},
 ]);
 
 //
@@ -805,7 +803,7 @@ db.projectedareas16.find().forEach(function (area) {
     db.coastline50.aggregate([
       {
         $geoNear: {
-          near: { type: "Point", coordinates: [lng, lt] },
+          near: {type: "Point", coordinates: [lng, lt]},
           key: "geometry",
           distanceField: "distance",
           includeLocs: "geometry",
@@ -820,8 +818,8 @@ db.projectedareas16.find().forEach(function (area) {
           _id: 0,
         },
       },
-      { $limit: 1 },
-      { $merge: { into: "deleteit" } },
+      {$limit: 1},
+      {$merge: {into: "deleteit"}},
     ]);
   }
 });
@@ -873,7 +871,7 @@ db.projectedareas16.aggregate([
       },
     },
   },
-  { $out: "projectedareas17" },
+  {$out: "projectedareas17"},
 ]);
 
 //Adding sustainability score and overriding it.
@@ -886,7 +884,7 @@ db.transportandsustainability.aggregate([
       transport_score: 1,
       sustainability: {
         $add: [
-          { $multiply: [{ $toDouble: "$Sustainability" }, 0.66666666666] },
+          {$multiply: [{$toDouble: "$Sustainability"}, 0.66666666666]},
           3.33333333333,
         ],
       },
@@ -894,11 +892,11 @@ db.transportandsustainability.aggregate([
       country: "$2",
     },
   },
-  { $out: "transportandsustainability" },
+  {$out: "transportandsustainability"},
 ]);
 
-db.transportandsustainability.createIndex({ sustainability: -1 });
-db.transportandsustainability.createIndex({ transport_score: -1 });
+db.transportandsustainability.createIndex({sustainability: -1});
+db.transportandsustainability.createIndex({transport_score: -1});
 
 db.transportandsustainability.updateMany({}, [
   {
@@ -955,7 +953,7 @@ db.projectedareas17.aggregate([
       },
     },
   },
-  { $out: "projectedareas18" },
+  {$out: "projectedareas18"},
 ]);
 
 db.projectedareas18.aggregate([
@@ -998,7 +996,7 @@ db.projectedareas18.aggregate([
       },
     },
   },
-  { $out: "projectedareas19" },
+  {$out: "projectedareas19"},
 ]);
 
 //Adding adventure info and overriding it.
@@ -1032,10 +1030,10 @@ db.countryAdventures.aggregate([
       "ADTI score": 1,
       RAW: 1,
       outdoor_activity_Resources: 1,
-      natural_Resources: { $toDouble: "$natural_Resources" },
+      natural_Resources: {$toDouble: "$natural_Resources"},
     },
   },
-  { $out: "countryAdventures" },
+  {$out: "countryAdventures"},
 ]);
 
 db.countryAdventures.updateMany({}, [
@@ -1052,7 +1050,7 @@ db.countryAdventures.updateMany({}, [
   },
 ]);
 
-db.countryAdventures.update({}, { $unset: { URL: 1 } }, false, true);
+db.countryAdventures.update({}, {$unset: {URL: 1}}, false, true);
 
 db.projectedareas20.aggregate([
   {
@@ -1096,7 +1094,7 @@ db.projectedareas20.aggregate([
       solotrip_city_sustainability_score: 1,
     },
   },
-  { $out: "projectedareas21" },
+  {$out: "projectedareas21"},
 ]);
 
 //Adding activities to areas.
@@ -1109,8 +1107,8 @@ db.activities.find().forEach(function (activity) {
 
   for (const element of wkdsHolder) {
     x = db.areasv2.update(
-      { "properties.wkd_id": element.wkd_id },
-      { $addToSet: { activity_tags: activityHolder } }
+      {"properties.wkd_id": element.wkd_id},
+      {$addToSet: {activity_tags: activityHolder}}
     );
   }
 });
@@ -1149,7 +1147,7 @@ db.areasv3.find().forEach(function (area) {
     db.areasv3.aggregate([
       {
         $geoNear: {
-          near: { type: "Point", coordinates: [lng, lt] },
+          near: {type: "Point", coordinates: [lng, lt]},
           key: "solotrip_location",
           distanceField: "distance",
         },
@@ -1167,7 +1165,7 @@ db.areasv3.find().forEach(function (area) {
           nearTo: wkdHolder,
         },
       },
-      { $limit: 20 },
+      {$limit: 20},
       {
         $group: {
           _id: "$nearTo",
@@ -1180,7 +1178,7 @@ db.areasv3.find().forEach(function (area) {
           },
         },
       },
-      { $merge: { into: "topnearcities" } },
+      {$merge: {into: "topnearcities"}},
     ]);
   }
 });
@@ -1198,8 +1196,8 @@ db.nearcities.find().forEach(function (city) {
   nearcitiesHolder = city.nearcities;
 
   x = db.areasv3.update(
-    { "properties.wkd_id": cityIdHolder },
-    { $set: { nearcities: nearcitiesHolder } }
+    {"properties.wkd_id": cityIdHolder},
+    {$set: {nearcities: nearcitiesHolder}}
   );
 });
 
@@ -1223,7 +1221,7 @@ db.airports.aggregate([
       websites: 1,
       location: {
         $cond: {
-          if: { $eq: ["$longitude", NaN] },
+          if: {$eq: ["$longitude", NaN]},
           then: {
             type: "Point",
             coordinates: [0, 0],
@@ -1231,22 +1229,22 @@ db.airports.aggregate([
           else: {
             type: "Point",
             coordinates: [
-              { $toDouble: "$longitude" },
-              { $toDouble: "$latitude" },
+              {$toDouble: "$longitude"},
+              {$toDouble: "$latitude"},
             ],
           },
         },
       },
     },
   },
-  { $out: "airportsv2" },
+  {$out: "airportsv2"},
 ]);
 
 //Creating index on aiports location
-db.airportsv2.createIndex({ location: "2dsphere" });
+db.airportsv2.createIndex({location: "2dsphere"});
 
 //Flights are duplicated from airfares.(Delete airfares later on.)
-db.airfares.aggregate([{ $match: {} }, { $out: "flights" }]);
+db.airfares.aggregate([{$match: {}}, {$out: "flights"}]);
 
 //adding airport (location) info to flights
 db.airportsv2.find().forEach(function (airport) {
@@ -1256,18 +1254,18 @@ db.airportsv2.find().forEach(function (airport) {
   idHolder = airport.id;
 
   db.flights.updateMany(
-    { from_iata: iataHolder },
-    { $set: { from_location: locationHolder } }
+    {from_iata: iataHolder},
+    {$set: {from_location: locationHolder}}
   );
 
   db.flights.updateMany(
-    { to_iata: iataHolder },
-    { $set: { to_location: locationHolder } }
+    {to_iata: iataHolder},
+    {$set: {to_location: locationHolder}}
   );
 });
 
-db.flights.createIndex({ from_location: "2dsphere" });
-db.flights.createIndex({ to_location: "2dsphere" });
+db.flights.createIndex({from_location: "2dsphere"});
+db.flights.createIndex({to_location: "2dsphere"});
 
 //Calculating the distance between two airports.
 /*
@@ -1284,7 +1282,7 @@ db.flights.aggregate([
 */
 
 //duplicating flights
-db.flights.aggregate([{ $match: {} }, { $out: "flightsv2" }]);
+db.flights.aggregate([{$match: {}}, {$out: "flightsv2"}]);
 
 //Calculating the distance between two from airport and to airport.
 
@@ -1308,18 +1306,18 @@ db.flights.find().forEach(function (flight) {
 
     var distance = 12742 * Math.asin(Math.sqrt(a));
     db.flightsv2.updateMany(
-      { _id: idHolder },
-      { $set: { distance: distance } }
+      {_id: idHolder},
+      {$set: {distance: distance}}
     );
   }
 });
 
 //Adding units as kilometers and deleting the duplicated (Old) collection.
-db.flightsv2.updateMany({}, { $set: { distanceUnit: "kilometers" } });
+db.flightsv2.updateMany({}, {$set: {distanceUnit: "kilometers"}});
 db.flights.drop();
 db.flightsv2.renameCollection("flights");
 
-db.areasv2.updateMany({}, { $set: { solotrip_distance_to_sea: "meters" } });
+db.areasv2.updateMany({}, {$set: {solotrip_distance_to_sea: "meters"}});
 
 //time difference calculation
 db.flights.find().forEach(function (flight) {
@@ -1352,7 +1350,7 @@ db.flights.find().forEach(function (flight) {
     }
 
     db.flights.updateMany(
-      { _id: idHolder },
+      {_id: idHolder},
       {
         $set: {
           timeDifference: {
@@ -1390,7 +1388,7 @@ db.areasv3.find().forEach(function (area) {
     db.airportsv2.aggregate([
       {
         $geoNear: {
-          near: { type: "Point", coordinates: [lng, lt] },
+          near: {type: "Point", coordinates: [lng, lt]},
           key: "location",
           distanceField: "distance",
           maxDistance: 200000,
@@ -1406,7 +1404,7 @@ db.areasv3.find().forEach(function (area) {
           nearTo: wkdHolder,
         },
       },
-      { $limit: 5 },
+      {$limit: 5},
       {
         $group: {
           _id: "$nearTo",
@@ -1419,7 +1417,7 @@ db.areasv3.find().forEach(function (area) {
           },
         },
       },
-      { $merge: { into: "nearairports" } },
+      {$merge: {into: "nearairports"}},
     ]);
   }
 });
@@ -1432,7 +1430,7 @@ db.nearairports.find().forEach(function (city) {
   nearairportsHolder = city.nearairports;
 
   x = db.areasv3.update(
-    { "properties.wkd_id": cityIdHolder },
+    {"properties.wkd_id": cityIdHolder},
     {
       $set: {
         nearairports: nearairportsHolder,
@@ -1459,7 +1457,7 @@ db.areasv3.find().forEach(function (area) {
   wkdHolder = area.properties.wkd_id;
 
   db.areasv3.updateMany(
-    { "properties.wkd_id": wkdHolder },
+    {"properties.wkd_id": wkdHolder},
     {
       $push: {
         scores: {
@@ -1485,7 +1483,7 @@ db.areasv3.find().forEach(function (area) {
   wkdHolder = area.properties.wkd_id;
 
   db.areasv3.updateMany(
-    { "properties.wkd_id": wkdHolder },
+    {"properties.wkd_id": wkdHolder},
     {
       $set: {
         name: nameHolder,
@@ -1509,7 +1507,7 @@ db.areasv3.find().forEach(function (area) {
   wkdHolder = area.properties.wkd_id;
 
   db.areasv3.updateMany(
-    { "properties.wkd_id": wkdHolder },
+    {"properties.wkd_id": wkdHolder},
     {
       $set: {
         electricity: {
@@ -1536,7 +1534,7 @@ db.areasv3.find().forEach(function (area) {
   });
   wkdHolder = area.properties.wkd_id;
   db.areasv3.updateMany(
-    { "properties.wkd_id": wkdHolder },
+    {"properties.wkd_id": wkdHolder},
     {
       $set: {
         tags: tagArray,
@@ -1554,7 +1552,7 @@ db.areasv3.find().forEach(function (area) {
     if (city.distance != 0) {
       //Find near city by wkd_id and get the name.
       if (city.wkd_id) {
-        x = db.areasv3.findOne({ "properties.wkd_id": city.wkd_id });
+        x = db.areasv3.findOne({"properties.wkd_id": city.wkd_id});
         city.name = x.properties.name;
       }
 
@@ -1565,7 +1563,7 @@ db.areasv3.find().forEach(function (area) {
   wkdHolder = area.properties.wkd_id;
 
   db.areasv3.updateMany(
-    { "properties.wkd_id": wkdHolder },
+    {"properties.wkd_id": wkdHolder},
     {
       $set: {
         near_cities: nearArray,
@@ -1583,7 +1581,7 @@ db.areasv3.find().forEach(function (area) {
     if (airport.distance != 0) {
       //Find near city by wkd_id and get the name.
       if (airport.location) {
-        x = db.airports.findOne({ location: airport.location });
+        x = db.airports.findOne({location: airport.location});
         airport.iata = x.iata;
         airport.names = x.names;
       }
@@ -1595,7 +1593,7 @@ db.areasv3.find().forEach(function (area) {
   wkdHolder = area.properties.wkd_id;
 
   db.areasv3.updateMany(
-    { "properties.wkd_id": wkdHolder },
+    {"properties.wkd_id": wkdHolder},
     {
       $set: {
         near_airports: nearArray,
@@ -1615,7 +1613,7 @@ db.areasv3.find().forEach(function (area) {
   wkdHolder = area.properties.wkd_id;
 
   db.areasv3.updateMany(
-    { "properties.wkd_id": wkdHolder },
+    {"properties.wkd_id": wkdHolder},
     {
       $push: {
         percentages: {
@@ -1639,7 +1637,7 @@ db.areasv3.find().forEach(function (area) {
   wkdHolder = area.properties.wkd_id;
 
   db.areasv3.updateMany(
-    { "properties.wkd_id": wkdHolder },
+    {"properties.wkd_id": wkdHolder},
     {
       $push: {
         distances: {
@@ -1675,7 +1673,7 @@ db.areas.find().forEach(function (area) {
     countrySlug;
 
   if (slugHolder) {
-    x = db.skypickerApi.findOne({ slug: slugHolder });
+    x = db.skypickerApi.findOne({slug: slugHolder});
     if (x != null) {
       nameHolder = x.name;
       popularityHolder = x.dst_popularity_score;
@@ -1683,7 +1681,7 @@ db.areas.find().forEach(function (area) {
   }
 
   db.areas.updateMany(
-    { "properties.wkd_id": wkdHolder },
+    {"properties.wkd_id": wkdHolder},
     {
       $set: {
         name_properties: {
@@ -1707,7 +1705,7 @@ db.areas.find().forEach(function (area) {
   wkdHolder = area.properties.wkd_id;
 
   if (slugHolder) {
-    x = db.skypickerApi.findOne({ slug: slugHolder });
+    x = db.skypickerApi.findOne({slug: slugHolder});
     if (x != null) {
       popularityHolder = x.dst_popularity_score;
       maxPopularity = 6093902;
@@ -1715,12 +1713,12 @@ db.areas.find().forEach(function (area) {
 
       popularityScore = Math.ceil(
         (10 * (popularityHolder - minPopularity)) /
-          (maxPopularity - minPopularity)
+        (maxPopularity - minPopularity)
       );
     }
 
     db.areas.updateMany(
-      { "properties.wkd_id": wkdHolder },
+      {"properties.wkd_id": wkdHolder},
       {
         $push: {
           scores: {
@@ -1744,12 +1742,12 @@ db.areas.find().forEach(function (area) {
   wkdHolder = area.properties.wkd_id;
 
   if (slugHolder) {
-    x = db.skypickerApi.findOne({ slug: slugHolder });
+    x = db.skypickerApi.findOne({slug: slugHolder});
     if (x != null) {
       airportsCount = x.bus_stations;
 
       db.areas.updateMany(
-        { "properties.wkd_id": wkdHolder },
+        {"properties.wkd_id": wkdHolder},
         {
           $push: {
             counts: {
@@ -1777,7 +1775,7 @@ db.areas.find().forEach(function (area) {
   wkdHolder = area.properties.wkd_id;
 
   if (slugHolder) {
-    x = db.skypickerApi.findOne({ slug: slugHolder });
+    x = db.skypickerApi.findOne({slug: slugHolder});
     if (x != null) {
       tagArray = [];
       tags = x.tags;
@@ -1785,7 +1783,7 @@ db.areas.find().forEach(function (area) {
       tags.forEach(function (tag) {
         tagArray.push(tag.tag);
         db.areas.updateMany(
-          { "properties.wkd_id": wkdHolder },
+          {"properties.wkd_id": wkdHolder},
           {
             $push: {
               tags: tag.tag,
@@ -1808,7 +1806,7 @@ db.areas.find().forEach(function (area) {
   wkdHolder = area.properties.wkd_id;
 
   if (slugHolder) {
-    x = db.skypickerApi.findOne({ slug: slugHolder });
+    x = db.skypickerApi.findOne({slug: slugHolder});
     if (x != null) {
       departureArray = [];
       departures = x.alternative_departure_points;
@@ -1824,7 +1822,7 @@ db.areas.find().forEach(function (area) {
       });
 
       db.areas.updateMany(
-        { "properties.wkd_id": wkdHolder },
+        {"properties.wkd_id": wkdHolder},
         {
           $set: {
             alternative_departure_points: departureArray,
@@ -1841,7 +1839,7 @@ db.areas.find().forEach(function (area) {
 });
 
 //unsetting the old fields. Remove.
-db.areas.update({}, { $unset: { nearairports: 1 } }, { multi: true });
+db.areas.update({}, {$unset: {nearairports: 1}}, {multi: true});
 
 //Adding UNESCO World Heritages into counts.
 
@@ -1852,7 +1850,7 @@ db.areas.find().forEach(function (area) {
     (area.heritages[0] && area.heritages[0].total_heritages) || 0;
 
   db.areas.updateMany(
-    { "properties.wkd_id": wkdHolder },
+    {"properties.wkd_id": wkdHolder},
     {
       $push: {
         counts: {
@@ -1879,7 +1877,7 @@ db.areas.find().forEach(function (area) {
 
   if (area.popularcities[0]) {
     db.areas.updateMany(
-      { "properties.wkd_id": wkdHolder },
+      {"properties.wkd_id": wkdHolder},
       {
         $push: {
           counts: {
@@ -1906,7 +1904,7 @@ db.areas.aggregate([
       "properties.wkd_id": 1,
     },
   },
-  { $out: "citynames" },
+  {$out: "citynames"},
 ]);
 
 //creating id for citynames.
@@ -1915,7 +1913,7 @@ db.citynames.find().forEach(function (city) {
   slugHolder = city.name_properties.slug;
 
   db.citynames.updateMany(
-    { "properties.wkd_id": wkdHolder },
+    {"properties.wkd_id": wkdHolder},
     {
       $set: {
         name: slugHolder + "_" + wkdHolder,
@@ -1923,3 +1921,125 @@ db.citynames.find().forEach(function (city) {
     }
   );
 });
+
+
+//add names and convert scores
+db.areas.aggregate([
+  {
+    '$set': {
+      'name': {
+        '$switch': {
+          'branches': [
+            {
+              'case': {
+                '$ne': [
+                  '$name_properties.name', null
+                ]
+              },
+              'then': '$name_properties.name'
+            }, {
+              'case': {
+                '$ne': [
+                  '$properties.asciiname', null
+                ]
+              },
+              'then': '$properties.asciiname'
+            }, {
+              'case': {
+                '$ne': [
+                  '$name_properties.name_nomad', null
+                ]
+              },
+              'then': '$name_properties.name_nomad'
+            }
+          ]
+        }
+      },
+      'scores': {
+        '$arrayToObject': {
+          '$map': {
+            'input': '$scores',
+            'as': 'i',
+            'in': {
+              'k': '$$i.key',
+              'v': '$$i.value'
+            }
+          }
+        }
+      },
+      'percentages': {
+        '$arrayToObject': {
+          '$map': {
+            'input': '$percentages',
+            'as': 'i',
+            'in': {
+              'k': '$$i.key',
+              'v': '$$i.value'
+            }
+          }
+        }
+      },
+      'counts': {
+        '$arrayToObject': {
+          '$map': {
+            'input': '$counts',
+            'as': 'i',
+            'in': {
+              'k': '$$i.key',
+              'v': '$$i.value'
+            }
+          }
+        }
+      },
+      'distances': {
+        '$arrayToObject': {
+          '$map': {
+            'input': '$distances',
+            'as': 'i',
+            'in': {
+              'k': '$$i.key',
+              'v': '$$i.value'
+            }
+          }
+        }
+      },
+      'location': '$solotrip_location'
+    }
+  }, {
+    '$lookup': {
+      'from': 'countries',
+      'localField': 'properties.country_code',
+      'foreignField': 'properties.ISO2',
+      'as': 'country'
+    }
+  }, {
+    '$set': {
+      'country': {
+        '$map': {
+          'input': '$country',
+          'as': 'i',
+          'in': {
+            'country_code': '$$i.properties.country_code',
+            'ISO2': '$$i.properties.ISO2',
+            'emoji_flag': '$$i.properties.emoji_flag',
+            'name': '$$i.name',
+            'visa_free_for': '$$i.visa_free_for',
+            'visa_on_arrival_for': '$$i.visa_on_arrival_for',
+            'languages': '$$i.properties.st_languages'
+          }
+        }
+      }
+    }
+  }, {
+    '$unwind': {
+      'path': '$country',
+      'preserveNullAndEmptyArrays': false
+    }
+  }, {
+    '$project': {
+      '_id': 0
+    }
+  }, {
+    '$out': 'areas'
+  }
+])
